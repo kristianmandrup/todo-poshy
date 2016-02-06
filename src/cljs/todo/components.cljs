@@ -8,9 +8,10 @@
 
 ;;;;; input box that sends the value of the text back to add-fn
 
-(defn add-box [conn add-fn]
+;; TODO: Fix and REFACTOR!!
+(defn add-box [add-fn]
   (let [edit (r/atom "")]
-    (fn [conn add-fn]
+    (fn [add-fn]
       [:span
        [:input
         {:type "text"
@@ -24,43 +25,40 @@
 
 ;;;;; edit box
 
-(defn edit-box [conn edit-id id attr]
-  (let [edit @(p/pull conn [:edit/val] edit-id)]
+(defn edit-box [edit-id id attr]
+  (let [edit (re/subscribe [:get-edit])]
     [:span
      [:input
       {:type "text"
        :value (:edit/val edit)
-       :onChange #(p/transact! conn [[:db/add edit-id :edit/val (-> % .-target .-value)]])}]
+       :onChange (re/dispatch [:edit-task edit-id])}]
      [:button
-      {:onClick #(p/transact! conn [[:db/add id attr (:edit/val edit)]
-                                    [:db.fn/retractEntity edit-id]])}
+      {:onClick (re/dispatch [:task-done edit-id])}
       "Done"]
      [:button
-      {:onClick #(p/transact! conn [[:db.fn/retractEntity edit-id]])}
+      {:onClick (re/dispatch [:task-cancel edit-id])}
       "Cancel"]]))
 
-(defn editable-label [conn id attr]
-  (let [val  (attr @(p/pull conn [attr] id))
-        edit @(p/q conn '[:find ?edit .
-                          :in $ ?id ?attr
-                          :where
-                          [?edit :edit/id ?id]
-                          [?edit :edit/attr ?attr]]
-                   id attr)]
+(defn new-task [id attr]
+
+
+(defn editable-label [id attr]
+  (let [val  (re/subscribe [:get-value id attr])
+        edit (re/subscribe [:edit-by-id id attr])]
     (if-not edit
       [:span val
        [:button
-        {:onClick #(util/new-entity! conn {:edit/id id :edit/val val :edit/attr attr})}
+        {:onClick }
         "Edit"]]
       [edit-box conn edit id attr])))
 
 ;;; check box
 
-(defn checkbox [conn id attr checked?]
+(defn checkbox [id attr checked?]
   [:input
    {:type "checkbox"
     :checked checked?
-    :onChange #(p/transact! conn [[:db/add id attr (not checked?)]])}])
+    :onChange (re/dispatch [:checked checked?])}])
 
 ;; stage button
 

@@ -1,18 +1,19 @@
 (ns todo.core
-    (:require [reagent.core :as reagent]
-              [re-frame.core :as re-frame]
-              [todo.handlers]
-              [todo.subs]
-              [todo.views :as views]
-              [todo.config :as config]))
+  (:require [reagent.core :as reagent]
+            [re-frame.core :as re-frame]
+            [todo.handlers]
+            [todo.subscribers]
+            [todo.views :as views]
+            [todo.config :as config]
+            [todo.db :as db]))
 
+;; print "Dev"  mode if configured for dev mode
 (when config/debug?
-  (println "dev mode"))
+  (println "DEV mode"))
 
-(defn mount-root []
-  (reagent/render [views/main-panel]
-                  (.getElementById js/document "app")))
-
-(defn ^:export init [] 
+(defn ^:export init []
   (re-frame/dispatch-sync [:initialize-db])
-  (mount-root))
+  (views/mount-root))
+
+
+

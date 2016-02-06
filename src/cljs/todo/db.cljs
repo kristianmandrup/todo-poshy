@@ -3,13 +3,16 @@
             [todo.util :as util :refer [tempid]]
   ))
 
+;; DataScript schema
 (def schema {:task/category         {:db/valueType :db.type/ref}
              :category/todo         {:db/valueType :db.type/ref}
              :todo/display-category {:db/valueType :db.type/ref}
              :action/editing        {:db/cardinality :db.cardinality/many}})
 
+;; Returns a connection to DataScript DB created via schema
 (def conn (d/create-conn schema))
 
+;; Populate initial DataScript DB according to Schema
 (defn populate! [conn]
   (let [todo-id    (util/new-entity! conn {:todo/name "Matt's List" :todo/listing :all})
         at-home    (util/new-entity! conn {:category/name "At Home" :category/todo todo-id})
@@ -39,10 +42,4 @@
         :task/done false
         :task/pinned true
         :task/category work-stuff}])))
-
-(enable-console-print!)
-
-;;; setup
-
-(populate! db/conn)
 
