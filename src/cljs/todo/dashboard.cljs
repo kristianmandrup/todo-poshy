@@ -33,7 +33,7 @@
   (let [cats (re/subscribe [:get-todo-categories todo-id])]
     [:div
      [:h2 "DASHBOARD: "]
-     (list-buttons)
+     list-buttons
      (dbtasks/task-list cats todo-id)]))
 
 

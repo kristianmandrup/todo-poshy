@@ -3,34 +3,30 @@
             [todo.util :as util]
             [todo.tasks :as tasks]
             [todo.components :as comp]
-            [todo.dashboard :as dash]))
+            [todo.dashboard :as dash]
+            [re-frame.core :as re]))
 
 ;; todo components
 
-(defn delete-category [conn category-id]
-  (let [category @(p/pull conn [:category/name] category-id)]
+(defn delete-category [category-id]
+  (let [category (re/subscribe [:category-name])]
     [comp/stage-button
      [(str "Delete \"" (:category/name category) "\" Category") "This will delete all its tasks, ok?"]
-     #(p/transact! conn [[:db.fn/retractEntity category-id]])]))
+     (re/dispatch [:delete-category])]))
 
-(defn category-panel [conn todo-id]
-  (let [c @(p/q conn '[:find ?c .
-                       :in $ ?t
-                       :where
-                       [?t :todo/display-category ?c]]
-                todo-id)]
-    (if (not c)
-      [dash/dashboard conn todo-id]
+(defn category-panel [todo-id]
+  (let [cat (re/subscribe [:get-todo-category])]
+    (if (not cat)
+      [dash/dashboard todo-id]
       [:div
-       [:h2 [comp/editable-label conn c :category/name]]
-       [delete-category conn c]
-       [tasks/task-panel conn c]
-       ;[add-task c]
+       [:h2 [comp/editable-label cat :category/name]]
+       [delete-category cat]
+       [tasks/task-panel cat]
+       [add-task cat]
        ])))
 
-(defn add-category!
-  [conn todo-id category-name]
-  (util/new-entity! conn {:category/name category-name :category/todo todo-id}))
+(defn add-category! [todo-id category-name]
+  (util/new-entity! {:category/name category-name :category/todo todo-id}))
 
 (defn add-new-category [conn todo-id]
   [:div "Add new category: " [comp/add-box conn (partial add-category! conn todo-id)]])
@@ -44,11 +40,7 @@
    " (" (count (:task/_category category)) ")"])
 
 (defn category-menu [conn todo-id]
-  (let [cats (->> @(p/pull conn
-                           '[{:category/_todo [:db/id :category/name {:task/_category [:db/id]}]}]
-                           todo-id)
-                  :category/_todo
-                  (sort-by :category/name))]
+  (let [cats (subscribe [:category-menus])]
     [:span
      (for [c cats]
        ^{:key (:db/id c)}

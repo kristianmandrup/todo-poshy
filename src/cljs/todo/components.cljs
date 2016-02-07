@@ -6,6 +6,11 @@
 
 ;;; General Purpose Components
 
+(defn add-edit [add-fn edit]
+  #(when-not (empty? @edit)
+    (add-fn @edit)
+    (reset! edit "")))
+
 ;;;;; input box that sends the value of the text back to add-fn
 
 ;; TODO: Fix and REFACTOR!!
@@ -18,9 +23,7 @@
          :value @edit
          :onChange #(reset! edit (-> % .-target .-value))}]
        [:button
-        {:onClick #(when-not (empty? @edit)
-                    (add-fn @edit)
-                    (reset! edit ""))}
+        {:onClick (add-edit add-fn edit)}
         "Add"]])))
 
 ;;;;; edit box
@@ -60,14 +63,17 @@
     :checked checked?
     :onChange (re/dispatch [:checked checked?])}])
 
+(defn finish-stage [stages stage finish-fn]
+  (when (= @stage (count stages))
+    (do (finish-fn)
+        (reset! stage 0))))
+
 ;; stage button
 
 (defn stage-button [stages finish-fn]
   (let [stage (r/atom 0)]
     (fn [stages finish-fn]
-      (when (= @stage (count stages))
-        (do (finish-fn)
-            (reset! stage 0)))
+      (finish-stage stages stage finish-fn)
       [:button
        {:onClick    #(swap! stage inc)
         :onMouseOut #(reset! stage 0)}

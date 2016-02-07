@@ -38,8 +38,13 @@
                       [:db.fn/retractEntity edit-id]])
 
 (re/register-handler
+  :delete-category
+  (fn  [db, [id category-id]]
+    (p/transact! db[[:db.fn/retractEntity category-id]])
+
+(re/register-handler
   :checked
-  (fn  [db, [id attr]]
+  (fn  [db, [id attr checked?]]
     (p/transact! db[[:db/add id attr (not checked?)]])))
 
 (re/register-handler

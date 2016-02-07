@@ -16,6 +16,14 @@
   [db, [edit-id]]
   (p/pull db [:edit/val] edit-id))
 
+(defn get-todo-category
+  [db, [todo-id]]
+    (p/q db '[:find ?c .
+                 :in $ ?t
+                 :where
+                 [?t :todo/display-category ?c]]
+          todo-id))
+
 (defn get-value
   [db, [attr id]]
     (attr @(p/pull db [attr] id)))
@@ -86,6 +94,18 @@
        :category/_todo
        (sort-by :category/name)))
 
+(defn category-menus
+  [db, [todo-id]]
+    (->> @(p/pull db
+                  '[{:category/_todo [:db/id :category/name {:task/_category [:db/id]}]}]
+                  todo-id)
+         :category/_todo
+         (sort-by :category/name))
+
+(defn category-name
+  [db, [category-id]]
+    (p/pull db [:category/name] category-id))
+
 ;; Register subscribers by key
 ;; - should allow registration via record
 
@@ -117,4 +137,8 @@
 (re-frame/register-sub
   :current-category
   current-category)
+
+(re-frame/register-sub
+  :get-todo-category
+  get-todo-category)
 

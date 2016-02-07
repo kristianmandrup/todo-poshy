@@ -14,10 +14,10 @@
 
 ;; Populate initial DataScript DB according to Schema
 (defn populate! [conn]
-  (let [todo-id    (util/new-entity! conn {:todo/name "Matt's List" :todo/listing :all})
-        at-home    (util/new-entity! conn {:category/name "At Home" :category/todo todo-id})
-        work-stuff (util/new-entity! conn {:category/name "Work Stuff" :category/todo todo-id})
-        hobby      (util/new-entity! conn {:category/name "Hobby" :category/todo todo-id})]
+  (let [todo-id    (util/new-entity! {:todo/name "Matt's List" :todo/listing :all})
+        at-home    (util/new-entity! {:category/name "At Home" :category/todo todo-id})
+        work-stuff (util/new-entity! {:category/name "Work Stuff" :category/todo todo-id})
+        hobby      (util/new-entity! {:category/name "Hobby" :category/todo todo-id})]
     (d/transact!
       conn
       [{:db/id (tempid)

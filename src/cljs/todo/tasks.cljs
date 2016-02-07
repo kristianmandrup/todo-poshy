@@ -13,7 +13,7 @@
 
 (defn add-task!
   [conn category-id task-name]
-  (util/new-entity! conn {:task/name task-name
+  (util/new-entity! {:task/name task-name
                           :task/category category-id
                           :task/done false}))
 
