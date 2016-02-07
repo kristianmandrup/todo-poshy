@@ -10,7 +10,7 @@
              :default-value (nth (first categories) 2)}
     (for [cat categories]
       ^{:key (first cat)} [:option {:value (first cat)} (second cat)])]
-   ])
+   ]))
 
 (defn dash-task [task-id]
   (let [task (re/subscribe [:task-by-id task-id])]
@@ -18,7 +18,7 @@
      [comp/checkbox task-id :task/done (:task/done task)]
      [comp/editable-label task-id :task/name]
      [comp/stage-button ["X" "X?"]
-      (re/dispatch [:delete-task task-id])]
+      #(re/dispatch [:delete-task task-id])]
      [category-select task-id]]))
 
 (defn delete-listed [tasks]
@@ -26,18 +26,22 @@
    ["Delete Listed" "Are you sure?" "They'll be gone forever, ok?"]
    #(re/dispatch [:delete-tasks tasks])])
 
-(defn task-list [conn todo-id]
+(defn list-filter [listing]
+  [:h3 (case listing
+         :all "All Tasks"
+         :done "Completed Tasks"
+         :not-done "Uncompleted Tasks")]
+
+
+(defn task-list [todo-id]
   (let [listing (re/subscribe [:get-listing])
         tasks   (re/subscribe [:task-list-tasks])]
     [:div
-     [:h3 (case listing
-            :all "All Tasks"
-            :done "Completed Tasks"
-            :not-done "Uncompleted Tasks")]
+     (list-filter [listing])
      (if-not (empty? tasks)
        [:div
-        (for [t tasks]
-          ^{:key t} [:div [dash-task conn t]])
-        [delete-listed conn tasks]]
+        (for [task tasks]
+          ^{:key task} [:div [dash-task task]])
+        [delete-listed tasks]]
        [:div "None"])]))
 

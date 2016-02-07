@@ -18,7 +18,8 @@
   ((:tempids get-tempids(varmap))
 
 (def tempid
-  (let [n (atom 0)] (fn [] (swap! n dec))))
+  (let [n (atom 0)]
+    (fn [] (swap! n dec))))
 
 ;; Populate initial DataScript DB according to Schema
 (defn populate! [conn]

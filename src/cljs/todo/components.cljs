@@ -45,6 +45,7 @@
       "Cancel"]]))
 
 (defn new-task [id attr]
+  )
 
 
 (defn editable-label [id attr]
@@ -53,7 +54,7 @@
     (if-not edit
       [:span val
        [:button
-        {:onClick }
+        {:onClick #(re/dispatch [:new-task-cancel id attr])}
         "Edit"]]
       [edit-box conn edit id attr])))
 

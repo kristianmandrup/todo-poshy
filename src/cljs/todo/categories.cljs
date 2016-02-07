@@ -1,10 +1,10 @@
 (ns todo.categories
   (:require [posh.core :as p]
-            [todo.util :as util]
             [todo.tasks :as tasks]
             [todo.components :as comp]
             [todo.dashboard :as dash]
-            [re-frame.core :as re]))
+            [re-frame.core :as re]
+            [todo.db :as db]))
 
 ;; todo components
 
@@ -26,7 +26,7 @@
        ])))
 
 (defn add-category! [todo-id category-name]
-  (util/new-entity! {:category/name category-name :category/todo todo-id}))
+  (db/new-entity! {:category/name category-name :category/todo todo-id}))
 
 (defn add-new-category [conn todo-id]
   [:div "Add new category: " [comp/add-box conn (partial add-category! conn todo-id)]])
