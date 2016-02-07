@@ -1,6 +1,5 @@
 (ns todo.db
   (:require [datascript.core :as d]
-            [todo.util :as util :refer [tempid]]
   ))
 
 ;; DataScript schema
@@ -12,12 +11,21 @@
 ;; Returns a connection to DataScript DB created via schema
 (def conn (d/create-conn schema))
 
+(defn get-tempids [varmap]
+  (d/transact! conn [(merge varmap {:db/id -1})]) -1)
+
+(defn new-entity! [varmap]
+  ((:tempids get-tempids(varmap))
+
+(def tempid
+  (let [n (atom 0)] (fn [] (swap! n dec))))
+
 ;; Populate initial DataScript DB according to Schema
 (defn populate! [conn]
-  (let [todo-id    (util/new-entity! {:todo/name "Matt's List" :todo/listing :all})
-        at-home    (util/new-entity! {:category/name "At Home" :category/todo todo-id})
-        work-stuff (util/new-entity! {:category/name "Work Stuff" :category/todo todo-id})
-        hobby      (util/new-entity! {:category/name "Hobby" :category/todo todo-id})]
+  (let [todo-id    (new-entity! {:todo/name "Matt's List" :todo/listing :all})
+        at-home    (new-entity! {:category/name "At Home" :category/todo todo-id})
+        work-stuff (new-entity! {:category/name "Work Stuff" :category/todo todo-id})
+        hobby      (new-entity! {:category/name "Hobby" :category/todo todo-id})]
     (d/transact!
       conn
       [{:db/id (tempid)

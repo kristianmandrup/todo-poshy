@@ -4,6 +4,8 @@
             [posh.core :as p]
             [todo.util :as util]))
 
+;; TODO: Extract handlers into domain specific files
+
 ;; atom is db/conn, the DataScript DB configured in db.cljs
 ;;; setup database
 (re/register-handler
@@ -82,7 +84,7 @@
   (fn  [db [task-id]]
     (p/transact!
       db
-      [[:db/add task-id :task/category
+      '[[:db/add task-id :task/category
         (cljs.reader/read-string (.. % -target -value))]])))
 
 (re/register-handler

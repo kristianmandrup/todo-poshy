@@ -4,6 +4,8 @@
             [posh.core :as p]
             [datascript.core :as d]))
 
+;; TODO: Extract subscriber into domain specific files
+
 (defn todo-by-name
   [db]
   (d/q '[:find ?todo . :where [?todo :todo/name _]] @db))
@@ -30,7 +32,7 @@
 
 (defn edit-by-id
   [db, [edit-id id attr]]
-    (p/q db [:find ?edit .
+    (p/q db '[:find ?edit .
                  :in $ ?id ?attr
                  :where
                  [?edit :edit/id ?id]
@@ -100,7 +102,7 @@
                   '[{:category/_todo [:db/id :category/name {:task/_category [:db/id]}]}]
                   todo-id)
          :category/_todo
-         (sort-by :category/name))
+         (sort-by :category/name)))
 
 (defn category-name
   [db, [category-id]]

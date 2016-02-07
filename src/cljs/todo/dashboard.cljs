@@ -10,11 +10,10 @@
 
 (defn list-button [type label]
   [:button
-   {:on-click (re/dispatch [:change-listing type])} label]
-  )
+   {:on-click #(re/dispatch [:change-listing type])} label])
 
 (defn categories [category]
-  (count (:task/_category category))
+  (count (:task/_category category)))
 
 (defn dashboard-category [todo-id category]
   [:div
@@ -33,12 +32,12 @@
   (let [cats (re/subscribe [:get-todo-categories todo-id])]
     [:div
      [:h2 "DASHBOARD: "]
-     list-buttons
-     (dbtasks/task-list cats todo-id)]))
+     '(list-buttons)
+     '(dbtasks/task-list cats todo-id)]))
 
 
 (defn dashboard-button [todo-id]
   (let [current-category (re/subscribe [:current-category todo-id])]
     [:button
-     {:onClick (re/dispatch [:act-on-category current-category todo-id])}
+     {:onClick #(re/dispatch [:act-on-category current-category todo-id])}
      "Dashboard"]))

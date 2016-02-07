@@ -2,12 +2,13 @@
   (:require [posh.core :as p]
             [todo.db :as db :refer [conn]]
             [reagent.core :as r]
-            [todo.util :as util]))
+            [todo.util :as util]
+            [re-frame.core :as re]))
 
 ;;; General Purpose Components
 
 (defn add-edit [add-fn edit]
-  #(when-not (empty? @edit)
+  (when-not (empty? @edit)
     (add-fn @edit)
     (reset! edit "")))
 
@@ -21,9 +22,10 @@
        [:input
         {:type "text"
          :value @edit
+         ;; dispatch?
          :onChange #(reset! edit (-> % .-target .-value))}]
        [:button
-        {:onClick (add-edit add-fn edit)}
+        {:onClick #(add-edit add-fn edit)}
         "Add"]])))
 
 ;;;;; edit box
@@ -34,12 +36,12 @@
      [:input
       {:type "text"
        :value (:edit/val edit)
-       :onChange (re/dispatch [:edit-task edit-id])}]
+       :onChange #(re/dispatch [:edit-task edit-id])}]
      [:button
-      {:onClick (re/dispatch [:task-done edit-id])}
+      {:onClick #(re/dispatch [:task-done edit-id])}
       "Done"]
      [:button
-      {:onClick (re/dispatch [:task-cancel edit-id])}
+      {:onClick #(re/dispatch [:task-cancel edit-id])}
       "Cancel"]]))
 
 (defn new-task [id attr]
@@ -61,7 +63,7 @@
   [:input
    {:type "checkbox"
     :checked checked?
-    :onChange (re/dispatch [:checked checked?])}])
+    :onChange #(re/dispatch [:checked checked?])}])
 
 (defn finish-stage [stages stage finish-fn]
   (when (= @stage (count stages))
